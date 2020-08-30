@@ -105,30 +105,29 @@ void rtcTime::setTime(){
   TWDR = 0b11010000;                //0b1101000 is slave address. 0b0 is write mode. SLA + W
   TWCR = (1<<TWINT)|(1<<TWEN);
   while(!(TWCR & (1<<TWINT)));
-  Serial.print("Set SLA+W: ");
-  Serial.println(TWDR, BIN);
+  //Serial.print("Set SLA+W: ");
+  //Serial.println(TWDR, BIN);
   TWDR =  0x00;                     //write word address. 0x00 is seconds
   TWCR = (1<<TWINT)|(1<<TWEN);
   while(!(TWCR & (1<<TWINT)));
-  Serial.print("Set word address: ");
-  Serial.println(TWDR, HEX);
+  //Serial.print("Set word address: ");
+  //Serial.println(TWDR, HEX);
   TWDR = 0x01;                      //then write the actual data. 1 for test
   TWCR = (1<<TWINT)|(1<<TWEN);
   while(!(TWCR & (1<<TWINT)));
-  Serial.print("Set seconds: ");
-  Serial.println(TWDR, HEX);
+  //Serial.print("Set seconds: ");
+  //Serial.println(TWDR, HEX);
   TWDR = 0x02;                      //2 minutes for test
   TWCR = (1<<TWINT)|(1<<TWEN);
   while(!(TWCR & (1<<TWINT)));
-  Serial.print("Set minutes: ");
-  Serial.println(TWDR, HEX);
+  //Serial.print("Set minutes: ");
+  //Serial.println(TWDR, HEX);
   TWDR = 0x03;                      //3 hours for test
   TWCR = (1<<TWINT)|(1<<TWEN);
   while(!(TWCR & (1<<TWINT)));
-  Serial.print("Set hour: ");
-  Serial.println(TWDR, HEX);
+  //Serial.print("Set hour: ");
+  //Serial.println(TWDR, HEX);
   i2c_stop();
-  Serial.println("--------------------------");
 }
 
 void rtcTime::getTime(){            //reads data from rtc and stores it into rtcTime
@@ -136,38 +135,44 @@ void rtcTime::getTime(){            //reads data from rtc and stores it into rtc
   TWDR = 0b11010000;                //0b1101000 is slave address. 0b0 is write mode. SLA + W
   TWCR = (1<<TWINT)|(1<<TWEN);
   while(!(TWCR & (1<<TWINT)));
-  Serial.print("Get SLA+W: ");
-  Serial.println(TWDR, BIN);
+  //Serial.print("Get SLA+W: ");
+  //Serial.println(TWDR, BIN);
   TWDR = 0x00;                      //word address to read. First pretend we're writing, then read the address we were supposed to write to. 0x00 is seconds address
   TWCR = (1<<TWINT)|(1<<TWEN);
   while(!(TWCR & (1<<TWINT)));
-  Serial.print("Get word address: ");
-  Serial.println(TWDR, HEX);
+  //Serial.print("Get word address: ");
+  //Serial.println(TWDR, HEX);
   i2c_start();                      //Repeated start condition
   TWDR = 0b11010001;                //0b1101000 is slave address. 0b1 is read mode. SLA + R
   TWCR = (1<<TWINT)|(1<<TWEN);
   while(!(TWCR & (1<<TWINT)));
-  Serial.print("Get SLA+R: ");
-  Serial.println(TWDR, BIN);
+  //Serial.print("Get SLA+R: ");
+  //Serial.println(TWDR, BIN);
   TWCR = (1<<TWINT)|(1<<TWEA)|(1<<TWEN);  //Slave sends byte, master sends ack
   while(!(TWCR & (1<<TWINT)));
   seconds = TWDR;
-  Serial.print("Get seconds: ");
-  Serial.println(seconds, HEX);                         //get seconds from TWDR
+  //Serial.print("Get seconds: ");
+  //Serial.println(seconds, HEX);                         //get seconds from TWDR
   TWCR = (1<<TWINT)|(1<<TWEA)|(1<<TWEN);  //Slave sends byte, master sends ack
   while(!(TWCR & (1<<TWINT)));
   minutes = TWDR;                         //get minutes from TWDR
-  Serial.print("Get minutes: ");
-  Serial.println(minutes, HEX);
+  //Serial.print("Get minutes: ");
+  //Serial.println(minutes, HEX);
   TWCR = (1<<TWINT)|(1<<TWEN);            //Slave sends byte, master sends nack
-  Serial.println("flag cleared");
+  //Serial.println("flag cleared");
   while(!(TWCR & (1<<TWINT)));
-  Serial.println("flag set");
+  //Serial.println("flag set");
   hour = TWDR;                            //get hour from TWDR
-  Serial.print("Get hour: ");
-  Serial.println(hour, HEX);
+  //Serial.print("Get hour: ");
+  //Serial.println(hour, HEX);
   i2c_stop();
-  Serial.println("--------------------------");
+  Serial.print("get hour: ");
+  Serial.print(hour, DEC);
+  Serial.print(":");
+  Serial.print(minutes, DEC);
+  Serial.print(":");
+  Serial.println(seconds, DEC);
+  //Serial.println("--------------------------");
 }
 
 void rtcTime::displayTime(){
@@ -176,19 +181,27 @@ void rtcTime::displayTime(){
   delay(100);
   Max_write_data(2, seconds/10);
   delay(100);
-  Serial.print("displayed seconds: ");
-  Serial.println(seconds, DEC);
+  //Serial.print("displayed seconds: ");
+  //Serial.println(seconds, DEC);
   Max_write_data(3, minutes%10);
   delay(100);
   Max_write_data(4, minutes/10);
   delay(100);
-  Serial.print("displayed minutes: ");
-  Serial.println(minutes, DEC);
+  //Serial.print("displayed minutes: ");
+  //Serial.println(minutes, DEC);
   Max_write_data(5, hour%10);
   delay(100);
   Max_write_data(6, hour/10);
   Serial.print("displayed hour: ");
-  Serial.println(hour, DEC);
+  Serial.print(hour/10, DEC);
+  Serial.print(hour%10, DEC);
+  Serial.print(":");
+  Serial.print(minutes/10, DEC);
+  Serial.print(minutes%10, DEC);
+  Serial.print(":");
+  Serial.print(seconds/10, DEC);
+  Serial.println(seconds%10, DEC);
+  Serial.println("--------------------------");
 }
 
 rtcTime currentTime;   //time to display
