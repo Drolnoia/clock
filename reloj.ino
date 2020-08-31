@@ -150,19 +150,19 @@ void rtcTime::getTime(){            //reads data from rtc and stores it into rtc
   //Serial.println(TWDR, BIN);
   TWCR = (1<<TWINT)|(1<<TWEA)|(1<<TWEN);  //Slave sends byte, master sends ack
   while(!(TWCR & (1<<TWINT)));
-  seconds = TWDR;
+  seconds = (((TWDR >> 4)*10)+(TWDR & 0x0F));
   //Serial.print("Get seconds: ");
   //Serial.println(seconds, HEX);                         //get seconds from TWDR
   TWCR = (1<<TWINT)|(1<<TWEA)|(1<<TWEN);  //Slave sends byte, master sends ack
   while(!(TWCR & (1<<TWINT)));
-  minutes = TWDR;                         //get minutes from TWDR
+  minutes = (((TWDR >> 4)*10)+(TWDR & 0x0F));                         //get minutes from TWDR
   //Serial.print("Get minutes: ");
   //Serial.println(minutes, HEX);
   TWCR = (1<<TWINT)|(1<<TWEN);            //Slave sends byte, master sends nack
   //Serial.println("flag cleared");
   while(!(TWCR & (1<<TWINT)));
   //Serial.println("flag set");
-  hour = TWDR;                            //get hour from TWDR
+  hour = (((TWDR >> 4)*10)+(TWDR & 0x0F));                           //get hour from TWDR
   //Serial.print("Get hour: ");
   //Serial.println(hour, HEX);
   i2c_stop();
